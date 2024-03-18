@@ -1,4 +1,4 @@
-###Задание 1 
+###Задание 1  Хорошего дня!
 import unittest
 from freezegun import freeze_time
 from your_module import get_weekday
@@ -31,7 +31,7 @@ def test_get_specific_weekday(self):
 if __name__ == '__main__':
     unittest.main()
 
-###Задание 2
+###Задание 2  Дешифратор
 import unittest
 from decoder import decode
 
@@ -66,4 +66,55 @@ class TestDecoder(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-###Задание 3
+###Задание 3 Учёт финансов
+@classmethod
+def setupClass(cls):
+    storage.update(...)
+def test_add_endpoint(self):
+    response = self.client.post('/add/', data={...})
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response.json, ...)
+def test_calculate_endpoint(self):
+    response = self.client.get('/calculate/')
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response.json, ...)
+def test_add_endpoint_invalid_date(self):
+    with self.assertRaises(ValueError):
+        response = self.client.post('/add/', data={'date': 'invalid_date_format'})
+def test_calculate_endpoint_empty_storage(self):
+    response = self.client.get('/calculate/')
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response.json, [])
+###Задание 4  Доверяй, но проверяй
+import datetime
+import unittest
+
+class TestPerson(unittest.TestCase):
+    def setUp(self):
+        self.person = person('John', 1990, '123 Main St')
+
+    def test_get_age(self):
+        now = datetime.datetime.now()
+        expected_age = now.year - self.person.yob
+        self.assertEqual(self.person.get_age(), expected_age)
+
+    def test_get_name(self):
+        self.assertEqual(self.person.get_name(), 'John')
+
+    def test_set_name(self):
+        self.person.set_name('Mike')
+        self.assertEqual(self.person.name, 'Mike')
+
+    def test_set_address(self):
+        self.person.set_address('456 Elm St')
+        self.assertEqual(self.person.address, '456 Elm St')
+
+    def test_get_address(self):
+        self.assertEqual(self.person.get_address(), '123 Main St')
+
+    def test_is_homeless(self):
+        self.assertFalse(self.person.is_homeless())
+
+if __name__ == '__main__':
+    unittest.main()
+
