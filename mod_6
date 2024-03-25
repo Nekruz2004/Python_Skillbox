@@ -1,1 +1,261 @@
+###Задача 1. Аутентификация
+import logging
+
+# Создаем объект логгера
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+# Создаем обработчик для записи логов в файл
+file_handler = logging.FileHandler("stderr.txt")
+
+# Создаем форматтер для логов
+formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+
+# Настраиваем формат и уровень логов для обработчика
+file_handler.setFormatter(formatter)
+file_handler.setLevel(logging.INFO)
+
+# Добавляем обработчик в логгер
+logger.addHandler(file_handler)
+
+# Пример использования логгера
+logger.debug("Debug message")
+logger.info("Info message")
+logger.warning("Warning message")
+logger.error("Error message")
+###Задача 2. Сложность пароля
+import re
+
+def is_strong_password(password):
+    # Загрузка списка слов английского языка из файла
+    with open("/usr/share/dict/words", "r") as file:
+        english_words = [word.strip().lower() for word in file if len(word.strip()) > 4]
+
+    # Извлечение слов из пароля с помощью регулярных выражений
+    words = re.findall(r"\b\w+\b", password)
+
+    # Проверка наличия слов английского языка в пароле
+    for word in words:
+        if word.lower() in english_words:
+            return False
+
+    return True
+
+# Пример использования функции
+print(is_strong_password("P@ssw0rd"))  # False
+print(is_strong_password("Qwerty123"))  # True
+###Задача 3. JSON-логирование
+import logging
+import json
+
+class JSONAdapter(logging.LoggerAdapter):
+    def process(self, msg, kwargs):
+        # Преобразование сообщения в JSON-строку
+        message = json.dumps(msg)
+
+        return message, kwargs
+
+# Создаем объект логгера с JSON-форматированием
+logger = JSONAdapter(logging.getLogger(__name__))
+logger.setLevel(logging.INFO)
+
+# Создаем обработчик для записи логов в файл
+file_handler = logging.FileHandler("skillbox_json_messages.log")
+
+# Создаем форматтер для логов
+formatter = logging.Formatter("%(message)s")
+
+# Настраиваем формат и уровень логов для обработчика
+file_handler.setFormatter(formatter)
+file_handler.setLevel(logging.INFO)
+
+# Добавляем обработчик в логгер
+logger.addHandler(file_handler)
+
+# Пример использования логгера
+logger.info({"time": "21:54:15", "level": "info", "message": "Example message"})
+###Задача 4. Анализируем логи
+import json
+import itertools
+from collections import Counter
+
+# Считываем логи из файла
+with open("skillbox_json_messages.log", "r") as file:
+    logs = [json.loads(line.strip()) for line in file]
+
+# Считаем количество сообщений каждого уровня за сутки
+level_counts = Counter(log["level"] for log in logs)
+
+# Находим час, в котором было больше всего логов
+hour_counts = Counter(log["time"].split(":")[0] for log in logs)
+most_common_hour = hour_counts.most_common(1)[0][0]
+
+# Фильтруем логи по уровню critical и времени
+filtered_logs = [log for log in logs if log["level"] == "critical" and "05:00:00" <= log["time"] <= "05:20:00"]
+count_critical_logs = len(filtered_logs)
+
+# Считаем количество сообщений, содержащих слово "dog"
+count_logs_with_dog = sum("dog" in log["message"] for log in logs)
+
+# Находим наиболее часто встречающееся слово в сообщениях уровня warning
+warning_messages = [log["message"] for log in logs if log["level"] == "warning"]
+most_common_word = Counter(itertools.chain(*[msg.split() for msg in warning_messages])).most_common(1)[0][0]
+
+# Вывод результатов
+print("Сообщений каждого уровня за сутки:", level_counts)
+print("Больше всего логов было в час:", most_common_hour)
+print("Количество логов уровня critical с 05:00:00 по 05:20:00:", count_critical_logs)
+print("Количество сообщений, содержащих слово 'dog':", count_logs_with_dog)
+print("Наиболее часто встречающееся слово в сообщениях уровня warning:", most_common_word)
+###Задача 5. Измерение времени
+###Импортировать модуль logging:
+import logging
+
+###Создать логгер:
+logger = logging.getLogger(__name__)
+
+###Создать форматировщик и добавить его к логгеру:
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
+###Задать уровень логирования:
+logger.setLevel(logging.INFO)
+
+###Добавить вызов функций для записи логов внутри функции measure_me:
+def measure_me():
+    logger.info("enter measure_me")
+    # Код функции
+    logger.info("leave measure_me")
+
+###Запустить программу и собрать логи:
+if __name__ == "__main__":
+    measure_me()
+
+###Получить время выполнения функции measure_me из логов:
+import re
+
+def calculate_average_execution_time(logs):
+    enter_pattern = r'enter measure_me'
+    leave_pattern = r'leave measure_me'
+    times = []
+    for log in logs:
+        if re.search(enter_pattern, log):
+            enter_time = re.search(r'\d+:\d+:\d+,\d+', log).group()
+        elif re.search(leave_pattern, log):
+            leave_time = re.search(r'\d+:\d+:\d+,\d+', log).group()
+            enter_seconds = sum(int(x) * 60 ** i for i, x in enumerate(reversed(enter_time[:-4].split(':'))))
+            leave_seconds = sum(int(x) * 60 ** i for i, x in enumerate(reversed(leave_time[:-4].split(':'))))
+            execution_time = leave_seconds - enter_seconds
+            times.append(execution_time)
+    average_execution_time = sum(times) / len(times)
+    return average_execution_time
+
+###Прочитать логи из stdout:
+import sys
+
+def get_logs():
+    logs = []
+    for line in sys.stdin:
+        logs.append(line.strip())
+    return logs
+
+###Вызвать функции и вывести среднее время выполнения функции measure_me:
+logs = get_logs()
+average_execution_time = calculate_average_execution_time(logs)
+print(f"Average execution time: {average_execution_time} seconds")
+
+###Задача 6. Список доступных страниц
+###Импортировать модули flask и flask.logging
+from flask import Flask, jsonify, redirect, request
+import logging
+
+###Создать Flask приложение
+app = Flask(__name__)
+
+###Создать логгер
+logger = logging.getLogger(__name__)
+
+###Создать декоратор для endpoint'ов для записи логов
+def log_endpoint(func):
+    def wrapper(*args, **kwargs):
+        logger.info(f"Endpoint: {request.url}")
+        return func(*args, **kwargs)
+    return wrapper
+
+###Добавить декоратор для всех endpoint'ов
+app.before_request(log_endpoint)
+
+### Создать error handler для обработки ошибки 404:
+@app.errorhandler(404)
+def page_not_found(error):
+    pages = []
+    for rule in app.url_map.iter_rules():
+        if not rule.redirect and rule.endpoint != 'static':
+            pages.append(request.host_url + rule.rule)
+    return jsonify({"available_pages": pages}), 404
+
+###Запустить Flask приложение:
+if __name__ == "__main__":
+    app.run()
+
+###Задача 7. Бинарное дерево логов
+###Создать класс BinaryTreeNode
+class BinaryTreeNode:
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
+
+###Создать функцию restore_tree
+def restore_tree(logs_path):
+    nodes = {}
+    with open(logs_path, 'r') as file:
+        for line in file:
+            values = line.strip().split()
+            node_value = int(values[0])
+            left_value = int(values[1])
+            right_value = int(values[2])
+            node = nodes.get(node_value)
+            if not node:
+                node = BinaryTreeNode(node_value)
+                nodes[node_value] = node
+            if left_value != -1:
+                left_node = BinaryTreeNode(left_value)
+                node.left = left_node
+                nodes[left_value] = left_node
+            if right_value != -1:
+                right_node = BinaryTreeNode(right_value)
+                node.right = right_node
+                nodes[right_value] = right_node
+    return nodes[1]
+
+###Пример использования функции restore_tree
+root = restore_tree('logs.txt')
+
+###Задача 8. Т9
+###Создать функцию my_t9
+def my_t9(digits):
+    letters = {
+        '2': ['a', 'b', 'c'],
+        '3': ['d', 'e', 'f'],
+        '4': ['g', 'h', 'i'],
+        '5': ['j', 'k', 'l'],
+        '6': ['m', 'n', 'o'],
+        '7': ['p', 'q', 'r', 's'],
+        '8': ['t', 'u', 'v'],
+        '9': ['w', 'x', 'y', 'z']
+    }
+    words = []
+    with open('/usr/share/dict/words', 'r') as file:
+        for word in file:
+            word = word.strip().lower()
+            if all(letter in letters[digit] for digit, letter in zip(digits, word)):
+                words.append(word)
+    return words
+
+###Пример использования функции my_t9
+words = my_t9('22736368')
+print(words)
 
