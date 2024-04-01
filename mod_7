@@ -1,1 +1,162 @@
+###Задание 1 Добавляем логирование.
+# app.py
+import logging
 
+logger = logging.getLogger("app")
+logger.setLevel(logging.INFO)
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(levelname)s | %(name)s | %(asctime)s | %(lineno)d | %(message)s')
+console_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
+
+# Вместо print('Результат:', result) используйте:
+logger.info('Результат: %s', result)
+
+# utils.py
+import logging
+
+logger = logging.getLogger("utils")
+logger.setLevel(logging.INFO)
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(levelname)s | %(name)s | %(asctime)s | %(lineno)d | %(message)s')
+console_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
+
+# Вместо print('Сумма чисел:', sum) используйте:
+logger.info('Сумма чисел: %s', sum)
+
+
+###Задание 2 ООП-конфигурация.
+# app.py
+import logging
+
+def configure_logging():
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s | %(name)s | %(asctime)s | %(lineno)d | %(message)s')
+
+###Задание 3 Многоуровневый обработчик.
+# app.py
+debug_handler = logging.FileHandler('calc_debug.log')
+debug_handler.setLevel(logging.DEBUG)
+debug_handler.setFormatter(formatter)
+debug_logger = logging.getLogger("debug_logger")
+debug_logger.addHandler(debug_handler)
+
+error_handler = logging.FileHandler('calc_error.log')
+error_handler.setLevel(logging.ERROR)
+error_handler.setFormatter(formatter)
+error_logger = logging.getLogger("error_logger")
+error_logger.addHandler(error_handler)
+
+###Задание 4 dict-конфигурация.
+log_config = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'level': 'INFO',
+            'formatter': 'main_formatter',
+        },
+    },
+    'formatters': {
+        'main_formatter': {
+            'format': '%(levelname)s | %(name)s | %(asctime)s | %(lineno)d | %(message)s',
+        },
+    },
+    'loggers': {
+        'app': {
+            'level': 'INFO',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+    },
+}
+import logging
+import logging.config
+from log_config import log_config
+
+logging.config.dictConfig(log_config)
+
+# Вместо предыдущих вызовов всех команд логирования
+logger = logging.getLogger("app")
+
+# Примените новый подход, например:
+logger.info('Результат: %s', result)
+
+###Задание 5  Ротация логов
+import logging
+from logging.handlers import TimedRotatingFileHandler
+
+utils_logger = logging.getLogger('utils')
+utils_logger.setLevel(logging.INFO)
+
+# Создание обработчика для записи логов в файл utils.log с ротацией за последние 10 часов
+file_handler = TimedRotatingFileHandler('utils.log', when='H', interval=10, backupCount=0)
+file_handler.setLevel(logging.INFO)
+
+# Создание форматтера для логов
+formatter = logging.Formatter('%(levelname)s | %(name)s | %(asctime)s | %(lineno)d | %(message)s')
+file_handler.setFormatter(formatter)
+
+# Добавление обработчика к логгеру utils
+utils_logger.addHandler(file_handler)
+
+# Пример использования логгера utils
+utils_logger.info('Это сообщение будет записано в файл utils.log')
+
+###Задание 6 Дерево логгеров
+import logging_tree
+
+# Получаем строку с древовидной структурой логгеров
+tree = logging_tree.format.build_description()
+
+# Записываем результат в файл
+with open('logging_tree.txt', 'w') as f:
+    f.write(tree)
+
+
+###Задание 7 Только ASCII
+import logging
+
+class ASCIIFilter(logging.Filter):
+    def filter(self, record):
+        return record.getMessage().isascii()
+
+# Пример использования фильтра
+ascii_filter = ASCIIFilter()
+
+# Пример применения фильтра к конфигурации
+log_config = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'level': 'INFO',
+            'formatter': 'main_formatter',
+            'filters': ['ascii_filter']
+        },
+    },
+    'formatters': {
+        'main_formatter': {
+            'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        }
+    },
+    'filters': {
+        'ascii_filter': {
+            '()': 'module.path.to.ASCIIFilter'
+        }
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'INFO'
+        }
+    }
+}
+
+###Задание 8 Сборщик логов
+
+###Задание 9 ini-конфигурация
