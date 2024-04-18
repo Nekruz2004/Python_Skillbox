@@ -1,1 +1,105 @@
+###Задача 2. Исследование продаж телефонов
+ **Телефоны какого цвета чаще всего покупают?**
 
+
+sql
+SELECT color, COUNT(color) AS frequency
+FROM table_checkout
+JOIN table_phones ON table_checkout.phone_id = table_phones.id
+GROUP BY color
+ORDER BY frequency DESC
+LIMIT 1;
+
+
+Ответ: Самый часто покупаемый цвет телефона - чёрный.
+
+###Задача 3. Анализ таблиц
+3. **Какой самый непопулярный цвет телефона?**
+
+sql
+SELECT color, COUNT(color) AS frequency
+FROM table_checkout
+JOIN table_phones ON table_checkout.phone_id = table_phones.id
+GROUP BY color
+ORDER BY frequency ASC
+LIMIT 1;
+
+
+Ответ: Самый непопулярный цвет телефона - золотой.
+### Введение
+Цель данной задачи - проанализировать три таблицы базы данных и получить информацию о количестве записей, уникальных значениях и пересечениях между таблицами.
+
+### Решение
+
+1. **Сколько записей (строк) хранится в каждой таблице?**
+
+sql
+SELECT COUNT(*) AS total_rows_table1 FROM table_1;
+SELECT COUNT(*) AS total_rows_table2 FROM table_2;
+SELECT COUNT(*) AS total_rows_table3 FROM table_3;
+
+
+2. **Сколько в таблице table_1 уникальных записей?**
+
+sql
+SELECT COUNT(DISTINCT id) AS unique_records_table1 FROM table_1;
+
+
+3. **Как много записей из таблицы table_1 встречается в table_2?**
+
+sql
+SELECT COUNT(*) AS common_records_table1_table2
+FROM table_1
+WHERE id IN (SELECT id FROM table_2);
+
+###Задача 4. Исследование доходов населения
+4. **Как много записей из таблицы table_1 встречается и в table_2, и в table_3?**
+
+sql
+SELECT COUNT(*) AS common_records_table1_table2_table3
+FROM table_1
+WHERE id IN (SELECT id FROM table_2)
+AND id IN (SELECT id FROM table_3);
+
+
+### Заключение
+Проведённый анализ позволяет лучше понять структуру данных и взаимосвязи между таблицами базы данных.
+
+---
+
+## Отчёт по задаче 4: Исследование доходов населения
+
+### Введение
+В данной задаче требуется проанализировать данные о доходах населения островного государства N и выполнить несколько заданий, используя SQL запросы.
+
+### Решение
+
+sql
+WITH top_10_percent AS (
+  SELECT salary
+  FROM salaries
+  ORDER BY salary DESC
+  LIMIT (SELECT COUNT(*) * 0.1 FROM salaries)
+)
+SELECT 
+  (SELECT COUNT(*) FROM salaries WHERE salary < 5000) AS people_below_poverty_line,
+  ROUND(AVG(salary), 2) AS average_salary,
+  (SELECT salary FROM top_10_percent ORDER BY salary DESC LIMIT 1) AS top_10_percent_total_income,
+  (SELECT SUM(salary) FROM salaries) AS total_income,
+  ROUND((SELECT salary FROM top_10_percent ORDER BY salary DESC LIMIT 1) / (SELECT SUM(salary) FROM salaries) * 100, 2) AS social_inequality_percentage
+FROM salaries;
+
+
+### Заключение
+Проведено исследование доходов населения островного государства N, результаты которого позволяют сделать выводы о социальной справедливости и уровне жизни населения.
+
+###Задача 5. Быстрая вставка
+def find_insert_position(arr, x):
+    low, high = 0, len(arr)
+    while low < high:
+        mid = (low + high) // 2
+        if arr[mid] < x:
+            low = mid + 1
+        else:
+            high = mid
+    return low
