@@ -1,1 +1,59 @@
+###Задача 1. Перевозка вакцины
+def check_if_vaccine_has_spoiled(
+        cursor: sqlite3.cursor,
+        truck_number: str
+) -> bool:
+    query = '''
+    SELECT EXISTS(
+        SELECT 1
+        FROM table_truck_with_vaccine
+        WHERE truck_number = ?
+        AND (
+            NOT EXISTS(
+                SELECT 1
+                FROM table_truck_with_vaccine
+                WHERE truck_number = ?
+                AND temperature BETWEEN -16 AND -20
+                LIMIT 3
+            ) OR EXISTS(
+                SELECT 1
+                FROM table_truck_with_vaccine
+                WHERE truck_number = ?
+                AND temperature NOT BETWEEN -20 AND -16
+            )
+        )
+    )
+    '''
+    cursor.execute(query, (truck_number, truck_number, truck_number))
+    return cursor.fetchone()[0]
+###Задача 2. Избавление от штрафов
+def delete_wrong_fees(
+        cursor: sqlite3.cursor,
+        wrong_fees_file: str
+) -> None:
+    import csv
+    with open(wrong_fees_file, 'r') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            date, car_number = row
+            cursor.execute('''
+            DELETE FROM table_fees
+            WHERE date = ?
+            AND car_number = ?
+            ''', (date, car_number))
+###Задача 3. Журнал птиц
+def log_bird(
+        cursor: sqlite3.cursor,
+        bird_name: str,
+        date_time: str
+) -> None:
+    cursor.execute("INSERT INTO table_birds (bird_name, date_time) VALUES (?, ?)", (bird_name, date_time))
+
+def check_if_such_bird_already_seen(
+        cursor: sqlite3.cursor,
+        bird_name: str
+) -> bool:
+    cursor.execute("SELECT EXISTS(SELECT 1 FROM table_birds WHERE bird_name = ?)", (bird_name,))
+    return cursor.fetchone()[0]
+###Задача 4. Эффективный менеджер
 
